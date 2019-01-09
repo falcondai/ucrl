@@ -1,7 +1,10 @@
+import itertools
 import numpy as np
 
 
 class MDP:
+    '''Markov decision process'''
+
     def reset(self, init_state=None):
         raise NotImplementedError
 
@@ -10,6 +13,8 @@ class MDP:
 
 
 class SimpleMDP(MDP):
+    '''Markov decision process as defined by transition and reward matrices'''
+
     def __init__(self, n_states, n_actions, p, r, initial_state_distribution=None):
         self.p = np.asarray(p)
         self.r = np.asarray(r)
@@ -33,6 +38,45 @@ class SimpleMDP(MDP):
         reward = self.r[self.state, action]
         self.state = next_state
         return next_state, reward
+
+    def expected_hitting_time(self, policy, origin, destination):
+        '''
+        Computes the expected hitting time from origin to destination given a Markov deterministic policy.
+        Args:
+            policy : [action] of size self.n_states where action \in [0, self.n_actions).
+                Stationary deterministic policy.
+            origin : int.
+                A state to start at.
+            destination : int.
+                A state to end at.
+        '''
+        # We keep travel of the expected travel time to destination y from (s, a)
+        ett = np.zeros((self.n_states, self.n_actions))
+
+
+
+    def compute_diameter(self):
+        # Compute by definition. diameter D(M) = max_{x, y \in S} min_{pi : S -> A} E[time to travel from x to y]
+        max_travel_time = 0
+        # For each pair of distinct states (x -> x has travel time 0)
+        for origin, destination in itertools.product(range(self.n_states), repeat=2):
+            if origin == destination:
+                continue
+            # Iterate over all stationary deterministic policies. O(|S|^2 |A|^|S|)
+            for destination in range(self.n_states):
+                for pi in itertools.product(range(self.n_actions), repeat=self.n_states):
+                    pi = np.asarray(pi, dtype='int')
+
+
+
+
+
+
+# class MRP:
+#     '''Markov reward process'''
+#
+#     def __init__(self, n_states, n_actions):
+#         raise NotImplementedError
 
 
 if __name__ == '__main__':
