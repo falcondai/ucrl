@@ -15,7 +15,7 @@ class MDP:
 class SimpleMDP(MDP):
     '''Markov decision process as defined by transition and reward matrices'''
 
-    def __init__(self, n_states, n_actions, p, r, initial_state_distribution=None):
+    def __init__(self, n_states, n_actions, p, r, initial_state_distribution=None, random_seed=None):
         self.p = np.asarray(p)
         self.r = np.asarray(r)
         assert self.p.shape == (n_states, n_actions, n_states)
@@ -25,16 +25,17 @@ class SimpleMDP(MDP):
         self.n_actions = n_actions
         # Default initial state distribution is uniform
         self.initial_state_distribution = initial_state_distribution or np.ones(self.n_states) / self.n_states
+        self.random = np.random.RandomState(seed=random_seed)
 
     def reset(self, initial_state=None):
         if initial_state is None:
-            self.state = np.random.choice(self.n_states, p=self.initial_state_distribution)
+            self.state = self.random.choice(self.n_states, p=self.initial_state_distribution)
         else:
             self.state = initial_state
         return self.state
 
     def step(self, action):
-        next_state = np.random.choice(self.n_states, p=self.p[self.state, action])
+        next_state = self.random.choice(self.n_states, p=self.p[self.state, action])
         reward = self.r[self.state, action]
         self.state = next_state
         return next_state, reward
@@ -43,20 +44,24 @@ class SimpleMDP(MDP):
         '''
         Computes the expected hitting time from origin to destination given a Markov deterministic policy.
         Args:
-            policy : [action] of size self.n_states where action \in [0, self.n_actions).
+            policy : [action] of size self.n_states where action in [0, self.n_actions).
                 Stationary deterministic policy.
             origin : int.
                 A state to start at.
             destination : int.
                 A state to end at.
         '''
-        # We keep travel of the expected travel time to destination y from (s, a)
-        ett = np.zeros((self.n_states, self.n_actions))
 
+        # Markov chain transition probability
+        mc_p = np.zeros((self.n_states, self.n_states))
+        for st, ac in enumerate(policy):
+            mc_p[st] = self.p[st, ac]
+        # We keep the expected hitting time to destination y from (s, a)
+        eht = np.zeros((self.n_states, self.n_actions))
 
 
     def compute_diameter(self):
-        # Compute by definition. diameter D(M) = max_{x, y \in S} min_{pi : S -> A} E[time to travel from x to y]
+        # Compute by definition. diameter D(M) := max_{x, y \in S} min_{pi : S -> A} E[time to hit y|x, pi]
         max_travel_time = 0
         # For each pair of distinct states (x -> x has travel time 0)
         for origin, destination in itertools.product(range(self.n_states), repeat=2):
