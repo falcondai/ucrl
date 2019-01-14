@@ -121,8 +121,10 @@ def ucrl2(mdp, delta, initial_state=None):
 
 
 if __name__ == '__main__':
+    # Parameters
     eps = 0.1
     alpha = 0.1
+    # MDP M
     n_states = n_actions = 2
     p = [
             [
@@ -140,8 +142,19 @@ if __name__ == '__main__':
         ]
     mdp = SimpleMDP(n_states, n_actions, p, r)
 
+    # Shaping potential
+    phi = [0, alpha]
+
+    # MDP M_phi
+    r_phi = [
+        [1 - alpha, 1 - alpha + alpha * eps],
+        [1, 1 - alpha * eps],
+    ]
+    # Potential-shaped MDP
+    mdp_phi = SimpleMDP(n_states, n_actions, p, r_phi)
+
     transitions = ucrl2(mdp, delta=0.1, initial_state=0)
     tr = []
     for _ in range(4000000):
-        (t, st, ac, next_st, r) = transitions.__next__()
+        (t, st, ac, next_st, r) = next(transitions)
         tr.append((t, st, ac, next_st, r))
