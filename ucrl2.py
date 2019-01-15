@@ -120,6 +120,11 @@ def ucrl2(mdp, delta, initial_state=None):
         total_visitations += vi
 
 
+def ucrl2_regret_bound(diameter, n_states, n_actions, delta, t):
+    '''Based on Theorem 2 in [JOA10]'''
+    return 34 * diameter * n_states * np.sqrt(n_actions * t * np.log(t / delta))
+
+
 if __name__ == '__main__':
     # Parameters
     eps = 0.1
