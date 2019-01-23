@@ -140,8 +140,8 @@ class RingMDP(SimpleMDP):
         # Going to the next state has reward 0
         # Staying at all states except for state n has reward 0
         r = np.zeros((n_states, n_actions))
-        # Staying at state n has reward 1
-        r[-1, 0] = 1
+        # All actions at state n has reward of 1
+        r[-1] = 1
         self.next_state_prob = next_state_prob
         p = np.zeros((n_states, n_actions, n_states))
         # `Stay here` action stays in the current state
